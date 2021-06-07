@@ -1,0 +1,139 @@
+Cipher.class
+------------------------
+package Main;
+
+import java.util.HashMap;
+
+public class Cipher {
+  public static void main(String[] args) {
+    new Cipher();
+  }
+  
+  private static HashMap<String, String> numsToLetters = generateNumsToLetters();
+  
+  private static HashMap<String, String> lettersToNums = generateLetterstoNums();
+  
+  int writeInt = 0;
+  
+  int rows = 0;
+  
+  boolean running = true;
+  
+  private String[] encryptedMessage = new String[3];
+  
+  public Cipher() {
+    for (int charNum = 0, indexNum = 0; charNum <= 127; charNum++, indexNum++) {
+      numsToLetters.put("" + indexNum, Character.toString((char)charNum));
+      lettersToNums.put(Character.toString((char)charNum), "" + indexNum);
+    } 
+    while (this.running) {
+      String choice = JOP.in("Do you want to decrypt, encrypt or exit the program?\nType d to decrypt, e to encrypt and click cancel to exit.\nYou can only decrypt if there is an encrypted message stored.");
+      if (choice == null) {
+        System.exit(0);
+        continue;
+      } 
+      if (choice.equals("e")) {
+        inputWriteInt();
+        String message = JOP.in("Enter a string of lowercase letters");
+        JOP.msg(info(message));
+        this.encryptedMessage[this.writeInt] = encrypt(message);
+        JOP.msg(this.encryptedMessage[this.writeInt]);
+        continue;
+      } 
+      if (choice.equals("d")) {
+        inputWriteInt();
+        JOP.msg(decrypt(this.encryptedMessage[this.writeInt]));
+      } 
+    } 
+  }
+  
+  //Takes a player selection (decrypt, encrypt or exit) and encrypt/decrypts based on it
+  
+  public String info(String message) {
+    this.rows = (int)Math.sqrt(Math.sqrt(message.length()));
+    return "Block data: Rows, " + this.rows + " Cols, " + this.rows + " Total Dimensions, " + (this.rows * this.rows) + ". There are " + (message.length() / this.rows * this.rows) + " blocks needed to encrypt.";
+  }
+  
+  //Returns the block data (Rows, columns, total dimensions, and blocks needed to encrypt)
+  
+  private void inputWriteInt() {
+    try {
+      this.writeInt = Integer.parseInt(JOP.in("Choose the slot you want to read/write to, 1-3.")) - 1;
+    } catch (Exception e) {
+      JOP.msg("Please enter a valid int");
+      inputWriteInt();
+    } 
+  }
+  
+  //Gets a player input on which slot to write to, calls the function recursively if input is invalid
+  
+  public String encrypt(String message) {
+    String tempMessage = "";
+    int i = 0;
+    char[] charArray = message.toCharArray();
+    for (char c : charArray) {
+      tempMessage = tempMessage + (String)lettersToNums.get(Character.toString(c)) + " ";
+      i++;
+    } 
+    while (this.rows * this.rows >= i) {
+      tempMessage = tempMessage + "A ";
+      i++;
+    } 
+    JOP.msg("" + i);
+    return tempMessage;
+  }
+  
+  //Encrypts parameter message
+  
+  public static String decrypt(String message) {
+    if (message != null && !message.equals("")) {
+      String[] arrayMessage = message.split(" ", 0);
+      String tempMessage = "";
+      for (String block : arrayMessage) {
+        if (block != "A")
+          tempMessage = tempMessage + (String)numsToLetters.get(block); 
+      } 
+      return tempMessage;
+    } 
+    return "No data in selected slot.";
+  }
+  
+  //Decrypts parameter message
+  
+  public static HashMap<String, String> generateNumsToLetters() {
+    HashMap<String, String> numsToLetters = new HashMap<>();
+    for (int charNum = 0, indexNum = 0; charNum <= 127; charNum++, indexNum++)
+      numsToLetters.put("" + indexNum, Character.toString((char)charNum)); 
+    return numsToLetters;
+  }
+  
+  //Creates a hash map containing the message in letter form 
+  
+  public static HashMap<String, String> generateLetterstoNums() {
+    HashMap<String, String> lettersToNums = new HashMap<>();
+    for (int charNum = 0, indexNum = 0; charNum <= 127; charNum++, indexNum++)
+      lettersToNums.put(Character.toString((char)charNum), "" + indexNum); 
+    return lettersToNums;
+  }
+  
+  //Creates a hash map containing the message in number form
+}
+JOP.class
+------------------------
+package Main;
+
+import javax.swing.JOptionPane;
+
+public class JOP {
+  public static void msg(String msg) {
+    JOptionPane.showMessageDialog(null, msg);
+  }
+  
+  //Displays parameter msg
+  
+  public static String in(String msg) {
+    return JOptionPane.showInputDialog(msg);
+  }
+  
+  //Displays parameter msg and takes input
+}
